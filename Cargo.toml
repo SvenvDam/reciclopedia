@@ -1,0 +1,16 @@
+[package]
+name = "recipes_graphql"
+version = "0.1.0"
+authors = ["Sven van Dam"]
+edition = "2018"
+
+[dependencies]
+diesel = { version = "1.4.3" , features = ["postgres", "r2d2"] }
+dotenv = "0.15.0"
+juniper = "0.14.2"
+juniper_warp = "0.5.2"
+log = "0.4.8"
+r2d2 = "0.8.8"
+serde = { version = "1.0.104", features = ["derive"] }
+simple_logger = "1.4.0"
+warp = "0.1.20"

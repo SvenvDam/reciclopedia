@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+docker run \
+    --name pg \
+    -e POSTGRES_PASSWORD=pwd \
+    -e POSTGRES_USER=user \
+    -p 5432:5432 \
+    --rm \
+    postgres:9.6
