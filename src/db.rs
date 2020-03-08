@@ -1,7 +1,8 @@
+use std::env;
+
 use diesel::pg::PgConnection;
 use diesel::r2d2::ConnectionManager;
-use r2d2::{Pool, PooledConnection};
-use std::env;
+use r2d2::Pool;
 
 pub struct Context {
     pub pool: PostgresPool
@@ -18,6 +19,7 @@ pub fn get_conn_pool() -> PostgresPool {
     let mgr = ConnectionManager::<PgConnection>::new(db_url);
 
     r2d2::Pool::builder()
+        .max_size(8)
         .build(mgr)
         .expect("could not build connection pool")
 }

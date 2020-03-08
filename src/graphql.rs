@@ -1,25 +1,15 @@
 use juniper::{FieldResult, RootNode};
 
 use crate::db::Context;
-use crate::models::{Ingredient, Recipe};
+use crate::models::graphql::Recipe;
+use crate::repository::RecipeRepository;
 
 pub struct Query;
 
 #[juniper::object(Context = Context)]
 impl Query {
-    fn test() -> Recipe {
-        Recipe {
-            id: 0,
-            name: "test".into(),
-            ingredients: vec![
-                Ingredient {
-                    id: 0,
-                    recipe_id: 0,
-                    name: "ing_1".into(),
-                    qty: None,
-                }
-            ]
-        }
+    fn get_recipe_by_name(ctx: &Context, name: String) -> FieldResult<Option<Recipe>> {
+        RecipeRepository::get_recipe_by_name(&ctx.pool.get().unwrap(), &name)
     }
 }
 
@@ -31,7 +21,6 @@ impl Mutation {
         Ok(str)
     }
 }
-
 
 pub fn schema() -> RootNode<'static, Query, Mutation> {
     juniper::RootNode::new(Query, Mutation)
