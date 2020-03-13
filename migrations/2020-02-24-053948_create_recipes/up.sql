@@ -1,4 +1,4 @@
 CREATE TABLE recipes (
    id SERIAL PRIMARY KEY,
-   name VARCHAR NOT NULL
+   name VARCHAR NOT NULL UNIQUE
  )

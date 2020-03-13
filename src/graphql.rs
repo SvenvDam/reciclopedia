@@ -8,8 +8,16 @@ pub struct Query;
 
 #[juniper::object(Context = Context)]
 impl Query {
-    fn get_recipe_by_name(ctx: &Context, name: String) -> FieldResult<Option<Recipe>> {
+    fn recipe_by_name(ctx: &Context, name: String) -> FieldResult<Option<Recipe>> {
         RecipeRepository::get_recipe_by_name(&ctx.pool.get().unwrap(), &name)
+    }
+
+    fn recipes_by_ingredient(ctx: &Context, name: String) -> FieldResult<Vec<Recipe>> {
+        RecipeRepository::get_recipes_by_ingredient_name(&ctx.pool.get().unwrap(), &name)
+    }
+
+    fn recipes_by_ingredients(ctx: &Context, names: Vec<String>) -> FieldResult<Vec<Recipe>> {
+        RecipeRepository::get_recipes_by_ingredient_names(&ctx.pool.get().unwrap(), &names)
     }
 }
 
@@ -17,9 +25,6 @@ pub struct Mutation;
 
 #[juniper::object(Context = Context)]
 impl Mutation {
-    fn test(str: String) -> FieldResult<String> {
-        Ok(str)
-    }
 }
 
 pub fn schema() -> RootNode<'static, Query, Mutation> {

@@ -1,6 +1,4 @@
 CREATE TABLE ingredients (
   id SERIAL PRIMARY KEY,
-  recipe_id SERIAL NOT NULL,
-  name VARCHAR NOT NULL,
-  qty VARCHAR
+  name VARCHAR NOT NULL UNIQUE
 )
