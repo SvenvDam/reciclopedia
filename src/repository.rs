@@ -1,3 +1,4 @@
+use diesel::pg::upsert::excluded;
 use diesel::PgConnection;
 use diesel::prelude::*;
 use juniper::{FieldError, FieldResult, Value};
@@ -120,5 +121,59 @@ impl RecipeRepository {
                 .map(|(ings, r)| gql::Recipe::from_pg(&r, &ings))
                 .collect()
         )
+    }
+
+    pub fn insert_recipe(conn: &PgConnection, recipe: gql::NewRecipe) -> FieldResult<gql::Recipe> {
+        conn.transaction(|| {
+            let inserted_recipe: pg::Recipe = as_field_result(
+                diesel::insert_into(recipes::table)
+                    .values(pg::NewRecipe::from_graphql(&recipe))
+                    .on_conflict(recipes::name)
+                    .do_update()
+                    .set(recipes::name.eq(excluded(recipes::name)))
+                    .get_result(conn)
+            )?;
+
+            let inserted_ingredients: Vec<pg::Ingredient> = as_field_result(
+                diesel::insert_into(ingredients::table)
+                    .values(pg::NewIngredient::from_graphql_many(&recipe.ingredients))
+                    .on_conflict(ingredients::name)
+                    .do_update()
+                    .set(ingredients::name.eq(excluded(ingredients::name)))
+                    .get_results(conn)
+            )?;
+
+            let inserted_recipe_ingredients: Vec<pg::RecipeIngredient> = {
+                let new_recipe_ingredients: Vec<pg::NewRecipeIngredient> = inserted_ingredients
+                    .iter()
+                    .zip(recipe.ingredients.iter())
+                    .map(|(pg_i, gql_i)| pg::NewRecipeIngredient {
+                        ingredient_id: pg_i.id,
+                        recipe_id: inserted_recipe.id,
+                        qty: gql_i.qty.clone(),
+                    })
+                    .collect();
+
+                as_field_result(
+                    diesel::insert_into(recipe_ingredients::table)
+                        .values(new_recipe_ingredients)
+                        .on_conflict((recipe_ingredients::recipe_id, recipe_ingredients::ingredient_id))
+                        .do_update()
+                        .set(recipe_ingredients::qty.eq(excluded(recipe_ingredients::qty)))
+                        .get_results(conn)
+                )?
+            };
+
+            let zipped: Vec<(pg::RecipeIngredient, pg::Ingredient)> = inserted_recipe_ingredients
+                .iter()
+                .map(|ri| ri.clone())
+                .zip(inserted_ingredients.iter().map(|i| i.clone()))
+                .collect();
+
+            Ok(gql::Recipe::from_pg(
+                &inserted_recipe,
+                &zipped,
+            ))
+        })
     }
 }

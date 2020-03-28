@@ -1,7 +1,7 @@
 use juniper::{FieldResult, RootNode};
 
 use crate::db::Context;
-use crate::models::graphql::Recipe;
+use crate::models::graphql::{Recipe, NewRecipe};
 use crate::repository::RecipeRepository;
 
 pub struct Query;
@@ -25,6 +25,9 @@ pub struct Mutation;
 
 #[juniper::object(Context = Context)]
 impl Mutation {
+    fn create_recipe(ctx: &Context, recipe: NewRecipe) -> FieldResult<Recipe> {
+        RecipeRepository::insert_recipe(&ctx.pool.get().unwrap(), recipe)
+    }
 }
 
 pub fn schema() -> RootNode<'static, Query, Mutation> {

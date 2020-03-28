@@ -6,8 +6,7 @@ table! {
 }
 
 table! {
-    recipe_ingredients (id) {
-        id -> Int4,
+    recipe_ingredients (recipe_id, ingredient_id) {
         recipe_id -> Int4,
         ingredient_id -> Int4,
         qty -> Nullable<Varchar>,
