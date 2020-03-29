@@ -62,3 +62,12 @@ pub struct NewRecipeIngredient {
     pub ingredient_id: i32,
     pub qty: Option<String>
 }
+
+#[derive(Queryable, Identifiable, Debug)]
+#[primary_key(username)]
+pub struct User {
+    pub username: String,
+    pub salt: String,
+    pub hashpwd: String,
+    pub token: Option<String>
+}

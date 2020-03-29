@@ -20,6 +20,15 @@ table! {
     }
 }
 
+table! {
+    users (username) {
+        username -> Varchar,
+        salt -> Varchar,
+        hashpwd -> Varchar,
+        token -> Nullable<Varchar>,
+    }
+}
+
 joinable!(recipe_ingredients -> ingredients (ingredient_id));
 joinable!(recipe_ingredients -> recipes (recipe_id));
 
@@ -27,4 +36,5 @@ allow_tables_to_appear_in_same_query!(
     ingredients,
     recipe_ingredients,
     recipes,
+    users,
 );

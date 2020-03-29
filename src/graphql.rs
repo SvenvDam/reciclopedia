@@ -1,8 +1,8 @@
-use juniper::{FieldResult, RootNode};
+use juniper::{FieldError, FieldResult, RootNode, Value};
 
 use crate::db::Context;
-use crate::models::graphql::{Recipe, NewRecipe};
-use crate::repository::RecipeRepository;
+use crate::models::graphql::{NewRecipe, Recipe};
+use crate::repository::{RecipeRepository, UserRepository};
 
 pub struct Query;
 
@@ -26,7 +26,17 @@ pub struct Mutation;
 #[juniper::object(Context = Context)]
 impl Mutation {
     fn create_recipe(ctx: &Context, recipe: NewRecipe) -> FieldResult<Recipe> {
-        RecipeRepository::insert_recipe(&ctx.pool.get().unwrap(), recipe)
+        match ctx {
+            Context {
+                pool,
+                username: Some(u),
+                session_token: Some(t)
+            } if UserRepository::validate_token(&pool.get().unwrap(), &u, &t) => {
+                RecipeRepository::insert_recipe(&ctx.pool.get().unwrap(), recipe)
+            },
+            _ => Err(FieldError::new("Login required", Value::null()))
+
+        }
     }
 }
 
