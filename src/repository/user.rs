@@ -16,14 +16,17 @@ use crate::schema::users;
 pub struct UserRepository;
 
 impl UserRepository {
-    fn set_user_session_token(conn: &PgConnection, user: &str) -> String {
+    fn set_user_session_token(conn: &PgConnection, user: &str) -> Result<String, UserError> {
         let uuid = Uuid::new_v4().to_string();
 
         let target = users::table.find(user);
 
-        diesel::update(target).set(users::token.eq(&uuid)).execute(conn);
+        diesel::update(target)
+            .set(users::token.eq(&uuid))
+            .execute(conn)
+            .map_err(|_| SetSessionFailed)?;
 
-        uuid
+        Ok(uuid)
     }
 
     fn get_hash(password: &str, salt: &str) -> argon2::Result<String> {
@@ -45,7 +48,7 @@ impl UserRepository {
         let generated_hash = Self::get_hash(&password, &user_data.salt).map_err(|_| HashFailed)?;
 
         if generated_hash == user_data.hashpwd {
-            Ok(Self::set_user_session_token(conn, &user))
+            Self::set_user_session_token(conn, &user)
         } else {
             Err(IncorrectPassword)
         }
@@ -64,6 +67,7 @@ pub enum UserError {
     UserNotFound,
     IncorrectPassword,
     HashFailed,
+    SetSessionFailed,
 }
 
 impl Error for UserError {}
@@ -73,8 +77,8 @@ impl fmt::Display for UserError {
         write!(f, "{}", match self {
             UserNotFound => "User not found!",
             IncorrectPassword => "Password is incorrect!",
-            HashFailed => "Could not validate password!"
-        }
-        )
+            HashFailed => "Could not validate password!",
+            SetSessionFailed => "Could not store session token!"
+        })
     }
 }
