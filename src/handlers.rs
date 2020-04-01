@@ -1,10 +1,10 @@
 use warp::http::Uri;
 use warp::reject::Cause;
 
-use crate::repository::UserError;
+use crate::repository::UserServerError;
 
 pub fn handle_login(
-    (res, username): (Result<String, UserError>, String)
+    (res, username): (Result<String, UserServerError>, String)
 ) -> Result<impl warp::Reply, warp::Rejection> {
     match res {
         Ok(token) => {

@@ -5,9 +5,11 @@ use argon2::{self, Config};
 use diesel::PgConnection;
 use diesel::query_dsl::filter_dsl::FindDsl;
 use diesel::RunQueryDsl;
-use uuid::Uuid;
+use rand;
+use rand::distributions::Alphanumeric;
+use rand::Rng;
 
-use UserError::*;
+use UserServerError::*;
 
 use crate::diesel::ExpressionMethods;
 use crate::models::postgres::User;
@@ -16,17 +18,17 @@ use crate::schema::users;
 pub struct UserRepository;
 
 impl UserRepository {
-    fn set_user_session_token(conn: &PgConnection, user: &str) -> Result<String, UserError> {
-        let uuid = Uuid::new_v4().to_string();
+    fn set_user_session_token(conn: &PgConnection, user: &str) -> Result<String, UserServerError> {
+        let token = Self::generate_random_string();
 
         let target = users::table.find(user);
 
         diesel::update(target)
-            .set(users::token.eq(&uuid))
+            .set(users::token.eq(&token))
             .execute(conn)
             .map_err(|_| SetSessionFailed)?;
 
-        Ok(uuid)
+        Ok(token)
     }
 
     fn get_hash(password: &str, salt: &str) -> argon2::Result<String> {
@@ -39,7 +41,14 @@ impl UserRepository {
         )
     }
 
-    pub fn try_login(conn: &PgConnection, user: &str, password: &str) -> Result<String, UserError> {
+    fn generate_random_string() -> String {
+        rand::thread_rng()
+            .sample_iter(&Alphanumeric)
+            .take(30)
+            .collect()
+    }
+
+    pub fn try_login(conn: &PgConnection, user: &str, password: &str) -> Result<String, UserServerError> {
         let user_data: User = users::table
             .find(&user)
             .get_result(conn)
@@ -60,19 +69,47 @@ impl UserRepository {
             _ => false
         }
     }
+
+    pub fn create_user(conn: &PgConnection, username: String, password: String) -> Result<(), UserCliError> {
+        let salt = Self::generate_random_string();
+        let hashpwd = Self::get_hash(&password, &salt).map_err(|_| UserCliError::CreateUserFailed)?;
+
+        let new_user = User {
+            username,
+            salt,
+            hashpwd,
+            token: None,
+        };
+
+        diesel::insert_into(users::table)
+            .values(&new_user)
+            .on_conflict(users::username)
+            .do_update()
+            .set(&new_user)
+            .execute(conn)
+            .map(|_| ())
+            .map_err(|_| UserCliError::CreateUserFailed)
+    }
+
+    pub fn delete_user(conn: &PgConnection, username: String) -> Result<(), UserCliError> {
+        diesel::delete(users::table.find(username))
+            .execute(conn)
+            .map(|_| ())
+            .map_err(|_| UserCliError::DeleteUSerFailed)
+    }
 }
 
 #[derive(Debug, Clone)]
-pub enum UserError {
+pub enum UserServerError {
     UserNotFound,
     IncorrectPassword,
     HashFailed,
     SetSessionFailed,
 }
 
-impl Error for UserError {}
+impl Error for UserServerError {}
 
-impl fmt::Display for UserError {
+impl fmt::Display for UserServerError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", match self {
             UserNotFound => "User not found!",
@@ -81,4 +118,10 @@ impl fmt::Display for UserError {
             SetSessionFailed => "Could not store session token!"
         })
     }
+}
+
+#[derive(Debug, Clone)]
+pub enum UserCliError {
+    CreateUserFailed,
+    DeleteUSerFailed,
 }

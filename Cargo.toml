@@ -8,6 +8,7 @@ edition = "2018"
 diesel = { version = "1.4.3" , features = ["postgres", "r2d2"] }
 diesel_migrations = "1.4.0"
 dotenv = "0.15.0"
+env_logger = "0.7.1"
 juniper = "0.14.2"
 juniper_warp = "0.5.2"
 log = "0.4.8"
@@ -15,6 +16,5 @@ r2d2 = "0.8.8"
 rand = "0.7.3"
 rust-argon2 = "0.8.2"
 serde = { version = "1.0.104", features = ["derive"] }
-simple_logger = "1.4.0"
-uuid = { version = "0.8.1", features = ["serde", "v4"] }
+structopt = "0.3.12"
 warp = "0.1.20"

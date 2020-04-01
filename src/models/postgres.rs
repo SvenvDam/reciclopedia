@@ -63,7 +63,7 @@ pub struct NewRecipeIngredient {
     pub qty: Option<String>
 }
 
-#[derive(Queryable, Identifiable, Debug)]
+#[derive(Queryable, Identifiable, Debug, Insertable, AsChangeset)]
 #[primary_key(username)]
 pub struct User {
     pub username: String,
