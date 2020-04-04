@@ -27,6 +27,18 @@ pub struct NewRecipe {
     pub ingredients: Vec<NewIngredient>,
 }
 
+impl NewRecipe {
+    pub fn to_lowercase(&self) -> Self {
+        NewRecipe {
+            name: self.name.to_lowercase(),
+            ingredients: self.ingredients
+                .iter()
+                .map(|i| i.to_lowercase())
+                .collect(),
+        }
+    }
+}
+
 #[derive(juniper::GraphQLObject, Clone, Debug, PartialEq)]
 pub struct Ingredient {
     pub name: String,
@@ -49,4 +61,13 @@ impl Ingredient {
 pub struct NewIngredient {
     pub name: String,
     pub qty: Option<String>,
+}
+
+impl NewIngredient {
+    pub fn to_lowercase(&self) -> Self {
+        NewIngredient {
+            name: self.name.to_lowercase(),
+            qty: self.qty.clone().map(|s| s.to_lowercase()),
+        }
+    }
 }

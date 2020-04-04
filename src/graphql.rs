@@ -9,15 +9,18 @@ pub struct Query;
 #[juniper::object(Context = Context)]
 impl Query {
     fn recipe_by_name(ctx: &Context, name: String) -> FieldResult<Recipe> {
-        recipe_by_name(ctx, name)
+        recipe_by_name(ctx, name.to_lowercase())
     }
 
     fn recipes_by_ingredient(ctx: &Context, name: String) -> FieldResult<Vec<Recipe>> {
-        recipes_by_ingredient(ctx, name)
+        recipes_by_ingredient(ctx, name.to_lowercase())
     }
 
     fn recipes_by_ingredients(ctx: &Context, names: Vec<String>) -> FieldResult<Vec<Recipe>> {
-        recipes_by_ingredients(ctx, names)
+        recipes_by_ingredients(
+            ctx,
+            names.iter().map(|s| s.to_lowercase()).collect()
+        )
     }
 }
 
@@ -26,7 +29,7 @@ pub struct Mutation;
 #[juniper::object(Context = Context)]
 impl Mutation {
     fn create_recipe(ctx: &Context, recipe: NewRecipe) -> FieldResult<Recipe> {
-        create_recipe(ctx, recipe)
+        create_recipe(ctx, recipe.to_lowercase())
     }
 }
 

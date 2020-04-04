@@ -1,5 +1,6 @@
 use warp::http::Uri;
 use warp::reject::Cause;
+use std::env;
 
 use crate::repository::UserServerError;
 
@@ -13,9 +14,10 @@ pub fn handle_login(
                     warp::redirect::redirect(Uri::from_static("/graphiql")),
                     "Set-Cookie",
                     format!(
-                        "User-Session-Token={}##{}",
+                        "User-Session-Token={}##{}; {}",
                         username,
-                        token
+                        token,
+                        env::var("COOKIE_SUFFIX").unwrap_or_default()
                     ),
                 )
             )
