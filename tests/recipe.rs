@@ -1,16 +1,17 @@
 use diesel::prelude::*;
 
-use recipes_graphql::models::graphql as gql;
-use recipes_graphql::models::postgres as pg;
-use recipes_graphql::repository::RecipeRepository;
-use recipes_graphql::schema::{ingredients, recipe_ingredients, recipes};
+use reciclopedia::models::graphql as gql;
+use reciclopedia::models::postgres as pg;
+use reciclopedia::repository::RecipeRepository;
+use reciclopedia::schema::{ingredients, recipe_ingredients, recipes};
 
 #[macro_use]
 mod common;
 
 #[test]
 fn create_recipe() {
-    setup_pg_test!(conn);
+    setup_pg_test_pool!(pool);
+    let conn = &pool.get().unwrap();
 
     RecipeRepository::insert_recipe(
         conn,
@@ -50,7 +51,8 @@ fn create_recipe() {
 
 #[test]
 fn get_recipe_by_name() {
-    setup_pg_test!(conn);
+    setup_pg_test_pool!(pool);
+    let conn = &pool.get().unwrap();
 
     diesel::insert_into(recipes::table)
         .values(pg::Recipe { id: 1, name: "recipe".into() })
@@ -85,7 +87,8 @@ fn get_recipe_by_name() {
 
 #[test]
 fn get_recipe_by_ingredient() {
-    setup_pg_test!(conn);
+    setup_pg_test_pool!(pool);
+    let conn = &pool.get().unwrap();
 
     diesel::insert_into(recipes::table)
         .values(pg::Recipe { id: 1, name: "recipe1".into() })
@@ -136,7 +139,8 @@ fn get_recipe_by_ingredient() {
 
 #[test]
 fn get_recipe_by_ingredients() {
-    setup_pg_test!(conn);
+    setup_pg_test_pool!(pool);
+    let conn = &pool.get().unwrap();
 
     diesel::insert_into(recipes::table)
         .values(pg::Recipe { id: 1, name: "recipe1".into() })

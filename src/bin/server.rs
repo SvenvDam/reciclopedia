@@ -2,8 +2,8 @@ use std::env;
 
 use dotenv;
 
-use recipes_graphql::db;
-use recipes_graphql::route;
+use reciclopedia::db;
+use reciclopedia::route;
 
 fn main() {
     dotenv::dotenv().ok();

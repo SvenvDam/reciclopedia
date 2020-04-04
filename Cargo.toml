@@ -1,5 +1,5 @@
 [package]
-name = "recipes_graphql"
+name = "reciclopedia"
 version = "0.1.0"
 authors = ["Sven van Dam"]
 edition = "2018"
@@ -19,5 +19,5 @@ serde = { version = "1.0.104", features = ["derive"] }
 structopt = "0.3.12"
 warp = "0.1.20"
 
-[dev-dependencies]
+#[dev-dependencies]
 testcontainers = "0.9.1"

@@ -1,16 +1,16 @@
-use diesel::PgConnection;
 use diesel::prelude::*;
 
-use recipes_graphql::models::postgres::User;
-use recipes_graphql::repository::UserRepository;
-use recipes_graphql::schema::users::dsl::*;
+use reciclopedia::models::postgres::User;
+use reciclopedia::repository::UserRepository;
+use reciclopedia::schema::users::dsl::*;
 
 #[macro_use]
 mod common;
 
 #[test]
 fn insert_user() {
-    setup_pg_test!(conn);
+    setup_pg_test_pool!(pool);
+    let conn = &pool.get().unwrap();
 
     UserRepository::create_user(
         conn,
@@ -28,7 +28,8 @@ fn insert_user() {
 
 #[test]
 fn delete_user() {
-    setup_pg_test!(conn);
+    setup_pg_test_pool!(pool);
+    let conn = &pool.get().unwrap();
 
     diesel::insert_into(users)
         .values(
@@ -55,7 +56,9 @@ fn delete_user() {
 
 #[test]
 fn login_user() {
-    setup_pg_test!(conn);
+    setup_pg_test_pool!(pool);
+    let conn = &pool.get().unwrap();
+
     UserRepository::create_user(conn, "user".into(), "pwd".into()).unwrap();
 
     let session_token = UserRepository::try_login(conn, "user", "pwd").unwrap();
@@ -70,7 +73,8 @@ fn login_user() {
 
 #[test]
 fn validate_token() {
-    setup_pg_test!(conn);
+    setup_pg_test_pool!(pool);
+    let conn = &pool.get().unwrap();
 
     diesel::insert_into(users)
         .values(

@@ -1,10 +1,10 @@
 #[allow(unused_macros)]
-macro_rules! setup_pg_test {
-    ($conn:ident) => {
+macro_rules! setup_pg_test_pool {
+    ($pool:ident) => {
         use testcontainers::Docker;
         use testcontainers::images::postgres::Postgres;
         use testcontainers::clients::Cli;
-        use recipes_graphql::db;
+        use reciclopedia::db;
 
         let cli = Cli::default();
         let container = cli.run(Postgres::default());
@@ -14,7 +14,6 @@ macro_rules! setup_pg_test {
             container.get_host_port(5432).unwrap()
         );
 
-        let pool = db::get_conn_pool(db_url);
-        let $conn: &PgConnection = &pool.get().unwrap();
-    };
+        let $pool = db::get_conn_pool(db_url);
+    }
 }

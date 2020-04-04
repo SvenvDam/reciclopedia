@@ -12,7 +12,11 @@ pub fn handle_login(
                 warp::reply::with_header(
                     warp::redirect::redirect(Uri::from_static("/graphiql")),
                     "Set-Cookie",
-                    format!("User-Session-Token={}##{}", username, token),
+                    format!(
+                        "User-Session-Token={}##{}",
+                        username,
+                        token
+                    ),
                 )
             )
         }

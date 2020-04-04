@@ -44,7 +44,7 @@ impl UserRepository {
     fn generate_random_string() -> String {
         rand::thread_rng()
             .sample_iter(&Alphanumeric)
-            .take(30)
+            .take(128)
             .collect()
     }
 

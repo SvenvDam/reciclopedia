@@ -5,10 +5,10 @@ use std::env;
 
 use structopt::StructOpt;
 
-use recipes_graphql::db;
-use recipes_graphql::models::cli::Args;
-use recipes_graphql::models::cli::Command::*;
-use recipes_graphql::repository::UserRepository;
+use reciclopedia::db;
+use reciclopedia::models::cli::Args;
+use reciclopedia::models::cli::Command::*;
+use reciclopedia::repository::UserRepository;
 
 fn main() {
     dotenv::dotenv().ok();

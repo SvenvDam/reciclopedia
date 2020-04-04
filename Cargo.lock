@@ -1281,7 +1281,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "recipes_graphql"
+name = "reciclopedia"
 version = "0.1.0"
 dependencies = [
  "diesel",

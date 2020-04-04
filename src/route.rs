@@ -4,7 +4,7 @@ use warp::filters::BoxedFilter;
 
 use crate::db::{Context, PostgresPool};
 use crate::graphql::schema;
-use crate::handlers::handle_login;
+use crate::handlers::user::handle_login;
 use crate::models::http::Credentials;
 use crate::repository::UserRepository;
 
@@ -58,7 +58,37 @@ fn get_context(pool: PostgresPool) -> BoxedFilter<(Context, )> {
 fn parse_session_cookie(token_cookie: String) -> (Option<String>, Option<String>) {
     let mut splitted = token_cookie.split("##");
     match (splitted.nth(0), splitted.nth(0)) {
-        (Some(user), Some(token)) => (Some(user.into()), Some(token.into())),
+        (Some(user), Some(token)) if !(user.is_empty() || token.is_empty()) =>
+            (Some(user.into()), Some(token.into())),
         _ => (None, None)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_cookie() {
+        assert_eq!(
+            parse_session_cookie("user##token123".into()),
+            (Some("user".to_string()), Some("token123".to_string()))
+        )
+    }
+
+    #[test]
+    fn test_parse_cookie_missing_token() {
+        assert_eq!(
+            parse_session_cookie("user##".into()),
+            (None, None)
+        )
+    }
+
+    #[test]
+    fn test_parse_invalid_cookie() {
+        assert_eq!(
+            parse_session_cookie("XXXXXXXXXXXXXXXX".into()),
+            (None, None)
+        )
     }
 }
