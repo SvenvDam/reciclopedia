@@ -3,6 +3,8 @@ extern crate diesel;
 #[macro_use]
 extern crate diesel_migrations;
 extern crate juniper;
+#[macro_use]
+extern crate log;
 
 pub mod db;
 pub mod models;

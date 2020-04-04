@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate log;
+
 use std::env;
 
 use structopt::StructOpt;
@@ -21,12 +24,12 @@ fn main() {
 
     match args.cmd {
         AddUser { username, password } => {
-            log::info!("Creating user {}", &username);
+            info!("Creating user {}", &username);
             UserRepository::create_user(&pool.get().unwrap(), username, password).unwrap()
-        },
+        }
         DeleteUser { username } => {
-                log::info!("Deleting user {}", &username);
-                UserRepository::delete_user(&pool.get().unwrap(), username).unwrap()
-            }
+            info!("Deleting user {}", &username);
+            UserRepository::delete_user(&pool.get().unwrap(), username).unwrap()
+        }
     }
 }

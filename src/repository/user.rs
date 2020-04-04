@@ -57,8 +57,10 @@ impl UserRepository {
         let generated_hash = Self::get_hash(&password, &user_data.salt).map_err(|_| HashFailed)?;
 
         if generated_hash == user_data.hashpwd {
-            Self::set_user_session_token(conn, &user)
+            info!("Logged in user {}", user);
+            Self::set_user_session_token(conn, user)
         } else {
+            info!("Incorrect password for user{}", user);
             Err(IncorrectPassword)
         }
     }

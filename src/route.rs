@@ -46,17 +46,19 @@ fn get_context(pool: PostgresPool) -> BoxedFilter<(Context, )> {
         .and(warp::cookie::optional("User-Session-Token"))
         .map(move |token_cookie: Option<String>| {
             let (user, token) = match token_cookie {
-                Some(c) => {
-                    let mut splitted = c.split("##");
-                    match (splitted.nth(0), splitted.nth(0)) {
-                        (Some(u), Some(t)) => (Some(u.into()), Some(t.into())),
-                        _ => (None, None)
-                    }
-                }
+                Some(c) => parse_session_cookie(c),
                 _ => (None, None)
             };
 
             Context { pool: pool.clone(), username: user, session_token: token }
         })
         .boxed()
+}
+
+fn parse_session_cookie(token_cookie: String) -> (Option<String>, Option<String>) {
+    let mut splitted = token_cookie.split("##");
+    match (splitted.nth(0), splitted.nth(0)) {
+        (Some(user), Some(token)) => (Some(user.into()), Some(token.into())),
+        _ => (None, None)
+    }
 }
