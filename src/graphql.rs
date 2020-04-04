@@ -8,7 +8,7 @@ pub struct Query;
 
 #[juniper::object(Context = Context)]
 impl Query {
-    fn recipe_by_name(ctx: &Context, name: String) -> FieldResult<Option<Recipe>> {
+    fn recipe_by_name(ctx: &Context, name: String) -> FieldResult<Recipe> {
         RecipeRepository::get_recipe_by_name(&ctx.pool.get().unwrap(), &name)
     }
 

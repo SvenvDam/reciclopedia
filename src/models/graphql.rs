@@ -1,6 +1,6 @@
 use crate::models::postgres;
 
-#[derive(juniper::GraphQLObject, Clone)]
+#[derive(juniper::GraphQLObject, Clone, Debug, PartialEq)]
 pub struct Recipe {
     pub name: String,
     pub ingredients: Vec<Ingredient>,
@@ -27,7 +27,7 @@ pub struct NewRecipe {
     pub ingredients: Vec<NewIngredient>,
 }
 
-#[derive(juniper::GraphQLObject, Clone)]
+#[derive(juniper::GraphQLObject, Clone, Debug, PartialEq)]
 pub struct Ingredient {
     pub name: String,
     pub qty: Option<String>,

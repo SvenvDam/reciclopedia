@@ -12,10 +12,6 @@ mod common;
 fn insert_user() {
     setup_pg_test!(conn);
 
-    let initial_users = users.load::<User>(conn).unwrap();
-
-    assert_eq!(initial_users.len(), 0);
-
     UserRepository::create_user(
         conn,
         "testuser".into(),

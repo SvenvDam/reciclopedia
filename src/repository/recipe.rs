@@ -21,7 +21,7 @@ impl RecipeRepository {
     pub fn get_recipe_by_name(
         conn: &PgConnection,
         recipe_name: &str,
-    ) -> FieldResult<Option<gql::Recipe>> {
+    ) -> FieldResult<gql::Recipe> {
         let recipe = as_field_result(
             recipes::table
                 .filter(recipes::name.eq(recipe_name))
@@ -35,7 +35,7 @@ impl RecipeRepository {
                     .inner_join(ingredients::table)
                     .get_results::<(pg::RecipeIngredient, pg::Ingredient)>(conn)
             ).map(|ings| {
-                Some(gql::Recipe::from_pg(&r, &ings))
+                gql::Recipe::from_pg(&r, &ings)
             }),
             None => Err(FieldError::new(format!("No recipe with name {}", recipe_name), Value::null()))
         }

@@ -1,7 +1,7 @@
-use crate::schema::*;
 use crate::models::graphql;
+use crate::schema::*;
 
-#[derive(Queryable, Identifiable, Clone, Debug)]
+#[derive(Queryable, Identifiable, Insertable, Clone, Debug, PartialEq)]
 pub struct Recipe {
     pub id: i32,
     pub name: String,
@@ -21,7 +21,7 @@ impl NewRecipe {
     }
 }
 
-#[derive(Queryable, Identifiable, Clone, Debug, PartialEq)]
+#[derive(Queryable, Identifiable, Insertable, Clone, Debug, PartialEq)]
 pub struct Ingredient {
     pub id: i32,
     pub name: String,
@@ -45,7 +45,7 @@ impl NewIngredient {
     }
 }
 
-#[derive(Queryable, Identifiable, Associations, Clone)]
+#[derive(Queryable, Identifiable, Insertable, Associations, Clone, Debug, PartialEq)]
 #[primary_key(recipe_id, ingredient_id)]
 #[belongs_to(Recipe)]
 #[belongs_to(Ingredient)]
@@ -60,7 +60,7 @@ pub struct RecipeIngredient {
 pub struct NewRecipeIngredient {
     pub recipe_id: i32,
     pub ingredient_id: i32,
-    pub qty: Option<String>
+    pub qty: Option<String>,
 }
 
 #[derive(Queryable, Identifiable, Debug, Insertable, AsChangeset, PartialEq)]
@@ -69,5 +69,5 @@ pub struct User {
     pub username: String,
     pub salt: String,
     pub hashpwd: String,
-    pub token: Option<String>
+    pub token: Option<String>,
 }
