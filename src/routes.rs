@@ -1,6 +1,9 @@
-use warp::{self, Rejection, Reply};
+use warp::{self, path, Rejection, Reply};
 use warp::Filter;
+use warp::filters::body::form;
 use warp::filters::BoxedFilter;
+use warp::fs::{file, File};
+use warp::http::Response;
 
 use crate::db::{Context, PostgresPool};
 use crate::graphql::schema;
@@ -8,24 +11,19 @@ use crate::handlers::user::handle_login;
 use crate::models::http::Credentials;
 use crate::repository::UserRepository;
 
-pub fn get_routes(pool: PostgresPool) -> impl Filter<Extract=impl Reply, Error=Rejection> {
-    let graphiql = warp::get2()
-        .and(warp::path("graphiql"))
-        .and(warp::path::end())
-        .and(juniper_warp::graphiql_filter("/graphql"))
-        .boxed();
+fn index() -> BoxedFilter<(File, )> {
+    warp::get2()
+        .and(path::end())
+        .and(file("./assets/html/index.html"))
+        .boxed()
+}
 
-    let graphql = warp::post2()
-        .and(warp::path("graphql"))
-        .and(warp::path::end())
-        .and(juniper_warp::make_graphql_filter(schema(), get_context(pool.clone())))
-        .boxed();
-
-    let login = warp::post2()
-        .and(warp::path("login"))
-        .and(warp::path::end())
+fn login(pool: PostgresPool) -> BoxedFilter<(impl Reply, )> {
+    warp::post2()
+        .and(path("login"))
+        .and(path::end())
         .and(get_context(pool.clone()))
-        .and(warp::filters::body::form::<Credentials>())
+        .and(form::<Credentials>())
         .map(|ctx: Context, creds: Credentials| {
             let res = UserRepository::try_login(
                 &ctx.pool.get().unwrap(),
@@ -35,15 +33,30 @@ pub fn get_routes(pool: PostgresPool) -> impl Filter<Extract=impl Reply, Error=R
 
             (res.clone(), creds.username.clone())
         })
-        .and_then(handle_login);
+        .and_then(handle_login)
+        .boxed()
+}
 
-    let index = warp::get2()
-        .and(warp::path::end())
-        .and(warp::fs::file("./assets/html/index.html"));
+fn graphql(pool: PostgresPool) -> BoxedFilter<(Response<Vec<u8>>, )> {
+    warp::post2()
+        .and(path("graphql"))
+        .and(path::end())
+        .and(juniper_warp::make_graphql_filter(schema(), get_context(pool.clone())))
+        .boxed()
+}
 
-    index
-        .or(login)
-        .or(graphql.or(graphiql))
+fn graphiql() -> BoxedFilter<(Response<Vec<u8>>, )> {
+    warp::get2()
+        .and(path("graphiql"))
+        .and(path::end())
+        .and(juniper_warp::graphiql_filter("/graphql"))
+        .boxed()
+}
+
+pub fn get_routes(pool: PostgresPool) -> impl Filter<Extract=impl Reply, Error=Rejection> {
+    index()
+        .or(login(pool.clone()))
+        .or(graphql(pool.clone()).or(graphiql()))
         .with(warp::log("server"))
 }
 

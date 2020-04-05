@@ -8,7 +8,7 @@ extern crate log;
 
 pub mod db;
 pub mod models;
-pub mod route;
+pub mod routes;
 pub mod graphql;
 pub mod schema;
 pub mod repository;
