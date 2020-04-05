@@ -76,4 +76,31 @@ fn test_login_invalid_user() {
         .reply(&routes);
 
     assert!(reply.headers().get("Set-Cookie").is_none());
+
+    assert_eq!(reply.status(), 401);
+    assert_eq!(reply.body(), "User not found");
 }
+
+#[test]
+fn test_login_invalid_password() {
+    setup_pg_test_pool!(pool);
+    let routes = get_routes(pool.clone());
+
+    UserRepository::create_user(
+        &pool.get().unwrap(),
+        "user".into(),
+        "pwd".into(),
+    ).unwrap();
+
+    let reply = test::request()
+        .method("POST")
+        .path("/login")
+        .body("username=user&password=INVALID")
+        .reply(&routes);
+
+    assert!(reply.headers().get("Set-Cookie").is_none());
+
+    assert_eq!(reply.status(), 401);
+    assert_eq!(reply.body(), "Incorrect password");
+}
+

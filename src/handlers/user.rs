@@ -1,11 +1,10 @@
 use warp::http::Uri;
-use warp::reject::Cause;
 use std::env;
 
-use crate::repository::UserServerError;
+use crate::handlers::rejection::UserRejection;
 
 pub fn handle_login(
-    (res, username): (Result<String, UserServerError>, String)
+    (res, username): (Result<String, UserRejection>, String)
 ) -> Result<impl warp::Reply, warp::Rejection> {
     match res {
         Ok(token) => {
@@ -22,6 +21,6 @@ pub fn handle_login(
                 )
             )
         }
-        Err(e) => Err(warp::reject::custom(Cause::from(e)))
+        Err(e) => Err(warp::reject::custom(e))
     }
 }

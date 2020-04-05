@@ -8,6 +8,7 @@ use warp::http::Response;
 use crate::db::{Context, PostgresPool};
 use crate::graphql::schema;
 use crate::handlers::user::handle_login;
+use crate::handlers::rejection::convert_rejection;
 use crate::models::http::Credentials;
 use crate::repository::UserRepository;
 
@@ -34,6 +35,7 @@ fn login(pool: PostgresPool) -> BoxedFilter<(impl Reply, )> {
             (res.clone(), creds.username.clone())
         })
         .and_then(handle_login)
+        .recover(convert_rejection)
         .boxed()
 }
 

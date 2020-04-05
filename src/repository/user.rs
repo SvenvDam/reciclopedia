@@ -1,6 +1,3 @@
-use std::error::Error;
-use std::fmt;
-
 use argon2::{self, Config};
 use diesel::PgConnection;
 use diesel::query_dsl::filter_dsl::FindDsl;
@@ -9,16 +6,16 @@ use rand;
 use rand::distributions::Alphanumeric;
 use rand::Rng;
 
-use UserServerError::*;
 
 use crate::diesel::ExpressionMethods;
 use crate::models::postgres::User;
 use crate::schema::users;
+use crate::handlers::rejection::UserRejection::{self, *};
 
 pub struct UserRepository;
 
 impl UserRepository {
-    fn set_user_session_token(conn: &PgConnection, user: &str) -> Result<String, UserServerError> {
+    fn set_user_session_token(conn: &PgConnection, user: &str) -> Result<String, UserRejection> {
         let token = Self::generate_random_string();
 
         let target = users::table.find(user);
@@ -48,7 +45,7 @@ impl UserRepository {
             .collect()
     }
 
-    pub fn try_login(conn: &PgConnection, user: &str, password: &str) -> Result<String, UserServerError> {
+    pub fn try_login(conn: &PgConnection, user: &str, password: &str) -> Result<String, UserRejection> {
         let user_data: User = users::table
             .find(&user)
             .get_result(conn)
@@ -97,33 +94,12 @@ impl UserRepository {
         diesel::delete(users::table.find(username))
             .execute(conn)
             .map(|_| ())
-            .map_err(|_| UserCliError::DeleteUSerFailed)
-    }
-}
-
-#[derive(Debug, Clone)]
-pub enum UserServerError {
-    UserNotFound,
-    IncorrectPassword,
-    HashFailed,
-    SetSessionFailed,
-}
-
-impl Error for UserServerError {}
-
-impl fmt::Display for UserServerError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", match self {
-            UserNotFound => "User not found!",
-            IncorrectPassword => "Password is incorrect!",
-            HashFailed => "Could not validate password!",
-            SetSessionFailed => "Could not store session token!"
-        })
+            .map_err(|_| UserCliError::DeleteUserFailed)
     }
 }
 
 #[derive(Debug, Clone)]
 pub enum UserCliError {
     CreateUserFailed,
-    DeleteUSerFailed,
+    DeleteUserFailed,
 }
