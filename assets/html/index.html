@@ -4,16 +4,25 @@
 </head>
 
 <body>
-<center>
-    <h1>Reciclopedia</h1>
-    <form action="/login" method="post">
-        <label for="username">Username:</label><br>
-        <input type="text" id="username" name="username"><br>
-        <label for="password">Password:</label><br>
-        <input type="password" id="password" name="password"><br>
-        <br>
-        <input type="submit" value="Login">
-        <input type="button" value="Proceed read-only" onclick="window.location = '/graphiql';">
+<div class="pull-right" style="margin: 10px;">
+    <form action="/logout" method="post">
+        <input type="submit" value="Logout">
     </form>
-</center>
+</div>
+<br>
+<br>
+<div>
+    <center>
+        <h1>Reciclopedia</h1>
+        <form action="/login" method="post">
+            <label for="username">Username:</label><br>
+            <input type="text" id="username" name="username"><br>
+            <label for="password">Password:</label><br>
+            <input type="password" id="password" name="password"><br>
+            <br>
+            <input type="submit" value="Login">
+            <input type="button" value="Proceed read-only" onclick="window.location = '/graphiql';">
+        </form>
+    </center>
+</div>
 </body>

@@ -5,12 +5,12 @@ use warp::filters::BoxedFilter;
 use warp::fs::{file, File};
 use warp::http::Response;
 
-use crate::db::{Context, PostgresPool};
+use crate::db::{Context, PostgresPool, get_conn_pool};
 use crate::graphql::schema;
-use crate::handlers::user::handle_login;
 use crate::handlers::rejection::convert_rejection;
 use crate::models::http::Credentials;
 use crate::repository::UserRepository;
+use crate::handlers::user::{handle_login, handle_logout};
 
 fn index() -> BoxedFilter<(File, )> {
     warp::get2()
@@ -39,6 +39,15 @@ fn login(pool: PostgresPool) -> BoxedFilter<(impl Reply, )> {
         .boxed()
 }
 
+fn logout(pool: PostgresPool) -> BoxedFilter<(impl Reply, )> {
+    warp::post2()
+        .and(path("logout"))
+        .and(path::end())
+        .and(get_context(pool.clone()))
+        .and_then(handle_logout)
+        .boxed()
+}
+
 fn graphql(pool: PostgresPool) -> BoxedFilter<(Response<Vec<u8>>, )> {
     warp::post2()
         .and(path("graphql"))
@@ -58,7 +67,9 @@ fn graphiql() -> BoxedFilter<(Response<Vec<u8>>, )> {
 pub fn get_routes(pool: PostgresPool) -> impl Filter<Extract=impl Reply, Error=Rejection> {
     index()
         .or(login(pool.clone()))
-        .or(graphql(pool.clone()).or(graphiql()))
+        .or(logout(pool.clone()))
+        .or(graphql(pool.clone()))
+        .or(graphiql())
         .with(warp::log("server"))
 }
 
