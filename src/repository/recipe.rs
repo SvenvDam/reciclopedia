@@ -176,4 +176,52 @@ impl RecipeRepository {
             ))
         })
     }
+
+    pub fn delete_recipe(conn: &PgConnection, recipe_name: &str) -> FieldResult<()> {
+        conn.transaction(|| {
+            let found_recipe: pg::Recipe = as_field_result(
+                recipes::table
+                    .filter(recipes::name.eq(recipe_name))
+                    .get_result::<pg::Recipe>(conn)
+            )?;
+
+            let found_ingredients: Vec<(pg::RecipeIngredient, pg::Ingredient)> = as_field_result(
+                pg::RecipeIngredient::belonging_to(&found_recipe)
+                    .inner_join(ingredients::table)
+                    .get_results::<(pg::RecipeIngredient, pg::Ingredient)>(conn)
+            )?;
+
+            found_ingredients
+                    .iter()
+                    .map(|(ri, i)| Self::delete_ingredient_link(ri, i, conn))
+                    .collect::<FieldResult<()>>()?;
+
+            as_field_result(
+                diesel::delete(&found_recipe)
+                    .execute(conn)
+                    .map(|_| ())
+            )
+        })
+    }
+
+    fn delete_ingredient_link(
+        recipe_ingredient: &pg::RecipeIngredient,
+        ingredient: &pg::Ingredient,
+        conn: &PgConnection,
+    ) -> FieldResult<()> {
+        as_field_result(diesel::delete(recipe_ingredient).execute(conn))?;
+        if Self::is_orphan_ingredient(ingredient, conn)? {
+            as_field_result(diesel::delete(ingredient).execute(conn))?;
+        }
+
+        Ok(())
+    }
+
+    fn is_orphan_ingredient(ingredient: &pg::Ingredient, conn: &PgConnection) -> FieldResult<bool> {
+        let links: Vec<pg::RecipeIngredient> = as_field_result(
+            pg::RecipeIngredient::belonging_to(ingredient).get_results::<pg::RecipeIngredient>(conn)
+        )?;
+
+        Ok(links.len() == 0)
+    }
 }
