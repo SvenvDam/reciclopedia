@@ -31,6 +31,10 @@ impl Mutation {
     fn create_recipe(ctx: &Context, recipe: NewRecipe) -> FieldResult<Recipe> {
         create_recipe(ctx, recipe.to_lowercase())
     }
+
+    fn delete_recipe(ctx: &Context, name: String) -> FieldResult<String> {
+        delete_recipe(ctx, name.to_lowercase())
+    }
 }
 
 pub fn schema() -> RootNode<'static, Query, Mutation> {

@@ -20,6 +20,12 @@ pub fn create_recipe(ctx: &Context, recipe: NewRecipe) -> FieldResult<Recipe> {
     authenticate_action(ctx, || RecipeRepository::insert_recipe(&ctx.pool.get().unwrap(), recipe.clone()))
 }
 
+pub fn delete_recipe(ctx: &Context, recipe_name: String) -> FieldResult<String> {
+    authenticate_action(ctx, || RecipeRepository::delete_recipe(&ctx.pool.get().unwrap(), recipe_name.as_str()))?;
+
+    Ok(recipe_name)
+}
+
 fn authenticate_action<T>(ctx: &Context, action: impl Fn() -> FieldResult<T>) -> FieldResult<T> {
     match ctx {
         Context {

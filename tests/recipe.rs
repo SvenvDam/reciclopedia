@@ -232,16 +232,12 @@ fn delete_recipe() {
     let found_ingredients = ingredients::table.load::<pg::Ingredient>(conn).unwrap();
     assert_eq!(
         found_ingredients,
-        vec![
-            pg::Ingredient { id: 1, name: "ingredient1".into() },
-        ]
+        vec![pg::Ingredient { id: 1, name: "ingredient1".into() }]
     );
 
     let found_recipe_ingredients = recipe_ingredients::table.load::<pg::RecipeIngredient>(conn).unwrap();
     assert_eq!(
         found_recipe_ingredients,
-        vec![
-            pg::RecipeIngredient { recipe_id: 2, ingredient_id: 1, qty: None },
-        ]
+        vec![pg::RecipeIngredient { recipe_id: 2, ingredient_id: 1, qty: None }]
     );
 }
