@@ -10,7 +10,7 @@ use crate::schema::*;
 type PgResult<T> = Result<T, diesel::result::Error>;
 
 fn as_field_result<T>(pg_result: PgResult<T>) -> FieldResult<T> {
-    pg_result.map_err(|e| FieldError::from(e))
+    pg_result.map_err(FieldError::from)
 }
 
 pub struct RecipeRepository {
@@ -81,7 +81,7 @@ impl RecipeRepository {
 
     pub fn get_recipes_by_ingredient_names(
         conn: &PgConnection,
-        ingredient_names: &Vec<String>,
+        ingredient_names: &[String],
     ) -> FieldResult<Vec<gql::Recipe>> {
         let pg_ingredients: Vec<pg::Ingredient> = as_field_result(
             ingredients::table
@@ -110,7 +110,7 @@ impl RecipeRepository {
                 .into_iter()
                 .zip(pg_recipes)
                 .filter(|(ings, _)| {
-                    let found: Vec<&pg::Ingredient> = ings.into_iter().map(|(_, i)| i).collect();
+                    let found: Vec<&pg::Ingredient> = ings.iter().map(|(_, i)| i).collect();
                     pg_ingredients.iter().all(|ing| found.contains(&ing))
                 })
                 .collect();
@@ -166,8 +166,8 @@ impl RecipeRepository {
 
             let zipped: Vec<(pg::RecipeIngredient, pg::Ingredient)> = inserted_recipe_ingredients
                 .iter()
-                .map(|ri| ri.clone())
-                .zip(inserted_ingredients.iter().map(|i| i.clone()))
+                .cloned()
+                .zip(inserted_ingredients.iter().cloned())
                 .collect();
 
             Ok(gql::Recipe::from_pg(
@@ -222,6 +222,6 @@ impl RecipeRepository {
             pg::RecipeIngredient::belonging_to(ingredient).get_results::<pg::RecipeIngredient>(conn)
         )?;
 
-        Ok(links.len() == 0)
+        Ok(links.is_empty())
     }
 }

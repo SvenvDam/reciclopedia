@@ -9,7 +9,7 @@ pub struct Recipe {
 impl Recipe {
     pub fn from_pg(
         recipe: &postgres::Recipe,
-        ingredients: &Vec<(postgres::RecipeIngredient, postgres::Ingredient)>,
+        ingredients: &[(postgres::RecipeIngredient, postgres::Ingredient)],
     ) -> Self {
         Self {
             name: recipe.name.clone(),

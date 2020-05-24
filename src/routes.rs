@@ -23,7 +23,7 @@ fn login(pool: PostgresPool) -> BoxedFilter<(impl Reply, )> {
     warp::post2()
         .and(path("login"))
         .and(path::end())
-        .and(get_context(pool.clone()))
+        .and(get_context(pool))
         .and(form::<Credentials>())
         .map(|ctx: Context, creds: Credentials| {
             let res = UserRepository::try_login(
@@ -32,7 +32,7 @@ fn login(pool: PostgresPool) -> BoxedFilter<(impl Reply, )> {
                 &creds.password,
             );
 
-            (res.clone(), creds.username.clone())
+            (res, creds.username)
         })
         .and_then(handle_login)
         .recover(convert_rejection)
@@ -51,7 +51,7 @@ fn graphql(pool: PostgresPool) -> BoxedFilter<(Response<Vec<u8>>, )> {
     warp::post2()
         .and(path("graphql"))
         .and(path::end())
-        .and(juniper_warp::make_graphql_filter(schema(), get_context(pool.clone())))
+        .and(juniper_warp::make_graphql_filter(schema(), get_context(pool)))
         .boxed()
 }
 
@@ -67,7 +67,7 @@ pub fn get_routes(pool: PostgresPool) -> impl Filter<Extract=impl Reply, Error=R
     index()
         .or(login(pool.clone()))
         .or(logout())
-        .or(graphql(pool.clone()))
+        .or(graphql(pool))
         .or(graphiql())
         .with(warp::log("server"))
 }

@@ -40,7 +40,7 @@ impl NewIngredient {
         }
     }
 
-    pub fn from_graphql_many(ings: &Vec<graphql::NewIngredient>) -> Vec<Self> {
+    pub fn from_graphql_many(ings: &[graphql::NewIngredient]) -> Vec<Self> {
         ings.iter().map(Self::from_graphql).collect()
     }
 }
