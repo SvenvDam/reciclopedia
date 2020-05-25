@@ -67,7 +67,7 @@ fn test_login_valid_user() {
 #[test]
 fn test_login_invalid_user() {
     setup_pg_test_pool!(pool);
-    let routes = get_routes(pool.clone());
+    let routes = get_routes(pool);
 
     let reply = test::request()
         .method("POST")

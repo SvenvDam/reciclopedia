@@ -171,7 +171,7 @@ fn get_recipe_by_ingredients() {
         .execute(conn)
         .unwrap();
 
-    let found_recipe = RecipeRepository::get_recipes_by_ingredient_names(conn, &vec!["ingredient1".into(), "ingredient2".into()])
+    let found_recipe = RecipeRepository::get_recipes_by_ingredient_names(conn, &["ingredient1".into(), "ingredient2".into()])
         .expect("Fetching recipes failed");
 
     assert_eq!(
@@ -222,7 +222,7 @@ fn delete_recipe() {
         .execute(conn)
         .unwrap();
 
-    RecipeRepository::delete_recipe(conn, "recipe1".into()).expect("Deleting recipe failed!");
+    RecipeRepository::delete_recipe(conn, "recipe1").expect("Deleting recipe failed!");
     let found_recipes = recipes::table.load::<pg::Recipe>(conn).unwrap();
     assert_eq!(
         found_recipes,
