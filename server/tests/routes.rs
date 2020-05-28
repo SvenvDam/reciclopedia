@@ -9,30 +9,6 @@ use reciclopedia::routes::get_routes;
 mod common;
 
 #[test]
-fn test_index_page() {
-    setup_pg_test_pool!(pool);
-    let routes = get_routes(pool);
-
-    let reply = test::request()
-        .path("/")
-        .method("GET")
-        .reply(&routes);
-
-    assert_eq!(reply.status(), 200, "OK");
-
-    let mut index_content = String::new();
-    std::fs::File::open("../assets/index.html")
-        .unwrap()
-        .read_to_string(&mut index_content)
-        .unwrap();
-
-    assert_eq!(
-        reply.body(),
-        &index_content
-    )
-}
-
-#[test]
 fn test_login_valid_user() {
     setup_pg_test_pool!(pool);
     let routes = get_routes(pool.clone());

@@ -1,1 +1,1 @@
-web: server/target/release/server
+web: cd server && target/release/server
