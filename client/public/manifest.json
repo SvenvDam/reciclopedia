@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Reciclopedia",
+  "name": "Reciclopedia - Simple recipe management tool",
   "icons": [
     {
       "src": "favicon.ico",
