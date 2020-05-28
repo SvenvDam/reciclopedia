@@ -15,7 +15,7 @@ use crate::repository::UserRepository;
 fn index() -> BoxedFilter<(File, )> {
     warp::get2()
         // .and(path::end())
-        .and(file("./assets/index.html"))
+        .and(file("../assets/index.html"))
         .boxed()
 }
 
@@ -68,7 +68,7 @@ pub fn get_routes(pool: PostgresPool) -> impl Filter<Extract=impl Reply, Error=R
         .or(logout())
         .or(graphql(pool))
         .or(graphiql())
-        .or(warp::fs::dir("./assets"))
+        .or(warp::fs::dir("../assets"))
         .or(index())
         .with(warp::log("server"))
 }

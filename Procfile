@@ -1,1 +1,1 @@
-web: target/release/server
+web: server/target/release/server
