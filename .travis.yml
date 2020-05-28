@@ -1,6 +1,6 @@
 language: rust
 cache: cargo
 script:
-- cargo test --verbose --all
+- cd server && cargo test --verbose --all
 services:
 - docker
