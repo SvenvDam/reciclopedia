@@ -8,14 +8,14 @@ use warp::http::Response;
 use crate::db::{Context, PostgresPool};
 use crate::graphql::schema;
 use crate::handlers::rejection::convert_rejection;
+use crate::handlers::user::{handle_login, handle_logout};
 use crate::models::http::Credentials;
 use crate::repository::UserRepository;
-use crate::handlers::user::{handle_login, handle_logout};
 
 fn index() -> BoxedFilter<(File, )> {
     warp::get2()
-        .and(path::end())
-        .and(file("./assets/html/index.html"))
+        // .and(path::end())
+        .and(file("./assets/index.html"))
         .boxed()
 }
 
@@ -64,11 +64,12 @@ fn graphiql() -> BoxedFilter<(Response<Vec<u8>>, )> {
 }
 
 pub fn get_routes(pool: PostgresPool) -> impl Filter<Extract=impl Reply, Error=Rejection> {
-    index()
-        .or(login(pool.clone()))
+    login(pool.clone())
         .or(logout())
         .or(graphql(pool))
         .or(graphiql())
+        .or(warp::fs::dir("./assets"))
+        .or(index())
         .with(warp::log("server"))
 }
 
