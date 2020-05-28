@@ -21,7 +21,7 @@ fn test_index_page() {
     assert_eq!(reply.status(), 200, "OK");
 
     let mut index_content = String::new();
-    std::fs::File::open("./assets/html/index.html")
+    std::fs::File::open("../assets/index.html")
         .unwrap()
         .read_to_string(&mut index_content)
         .unwrap();
