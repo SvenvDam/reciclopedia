@@ -1,5 +1,3 @@
-use std::io::Read;
-
 use warp::test;
 
 use reciclopedia::repository::UserRepository;

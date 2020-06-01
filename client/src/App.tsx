@@ -1,39 +1,57 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import Cookies from 'js-cookie'
 
 function App() {
-
-  function handleReadOnlyClick() {
-    window.location.href ='/graphiql'
-  }
-
   return (
     <div className="App">
-      <header className="App-header">
-        <div>
-            <h1>Reciclopedia</h1>
-            <form action="/login" method="post">
-                <label>Username:</label><br/>
-                <input type="text" id="username" name="username"/><br/>
-                <label>Password:</label><br/>
-                <input type="password" id="password" name="password"/><br/>
-                <br/>
-                <input type="submit" value="Login"/>
-                <input type="button" value="Proceed read-only" onClick={handleReadOnlyClick}/>
-            </form>
-        </div>
-        <br/>
-        <br/>
-        <div>
-            <form action="/logout" method="post">
-                <input type="submit" value="Logout"/>
-            </form>
-        </div>
-      </header>
-
+      <Nav />
+      <Link />
     </div>
   );
 }
 
 export default App;
+
+function Nav() {
+  return (
+    <div>
+      <ul className="Nav">
+        <li className="Title">Reciclopedia</li>
+        <li><User /></li>
+      </ul>
+    </div>
+  )
+}
+
+function User() {
+  const cookieValue = Cookies.get("User-Session-Token")
+  if (cookieValue) {
+    const displayName = "Hi, " + cookieValue.split("##")[0]
+
+    return (
+      <form action="/logout" method="post" className="User">
+        <label>{displayName}</label>
+        <input type="submit" value="Logout" />
+      </form>
+    )
+  } else {
+    return (
+      <form action="/login" method="post" className="User">
+        <input type="text" id="username" name="username" placeholder="Username" />
+        <input type="password" id="password" name="password" placeholder="Password" />
+        <input type="submit" value="Login" />
+      </form>
+    )
+  }
+}
+
+function Link() {
+  return (
+    <div className="Link">
+      <button onClick={() => window.location.href = "/graphiql"}>
+        <h1>Graphiql</h1>
+    </button>
+    </div>
+  )
+}
