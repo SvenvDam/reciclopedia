@@ -11,7 +11,7 @@ pub fn handle_login(
         Ok(token) => {
             Ok(
                 warp::reply::with_header(
-                    warp::redirect::redirect(Uri::from_static("/graphiql")),
+                    warp::redirect::redirect(Uri::from_static("/")),
                     "Set-Cookie",
                     format!(
                         "{}={}##{}; {}",

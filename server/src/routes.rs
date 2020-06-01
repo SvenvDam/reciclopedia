@@ -14,7 +14,6 @@ use crate::repository::UserRepository;
 
 fn index() -> BoxedFilter<(File, )> {
     warp::get2()
-        // .and(path::end())
         .and(file("../assets/index.html"))
         .boxed()
 }
